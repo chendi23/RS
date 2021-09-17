@@ -58,7 +58,7 @@ def add_features(original_df, base_info):
 
 
 users, items, ratings, ctrs = load_dataset('C:\\Users\\dell\\PycharmProjects\\com.kgdata.nlp.recommeders_new\\try\\demo_data')
-combine_item_clicking = pd.merge(ctrs, items[['item_id']], on='item_id', how='inner')
+combine_item_clicking = pd.merge(ctrs, items[['item_id']], on=['item_id'], how='inner')
 user_list = list(combine_item_clicking['user_id'].unique())  # 评分列表中的用户取唯一值，即哪些用户给了评分
 item_list = list(combine_item_clicking['item_id'].unique())  # 评分列表中的商品取唯一值，即哪些商品被评分了
 base_info = {'users': users, 'items': items, 'ratings': ratings, 'ctrs': ctrs,

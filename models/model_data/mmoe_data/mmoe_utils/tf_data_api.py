@@ -62,7 +62,7 @@ for serialized_example_tensor in dataset:
 """
 
 ctr_frame = pd.read_csv('C:\\Users\\dell\\PycharmProjects\\com.kgdata.nlp.recommeders_new\\try\\demo_data\\ctr.csv', sep=';')
-ctr_frame['user_id'] = LabelEncoder().fit_transform(y=ctr_frame['user_id'])
+#ctr_frame['user_id'] = LabelEncoder().fit_transform(y=ctr_frame['user_id'])
 #print(ctr_frame['user_id'])
 rows_count = len(ctr_frame)
 
@@ -88,21 +88,20 @@ def get_IntFeature(value):
 
 
 ### write csv to tfrecord
-"""
+
 with tf.io.TFRecordWriter(output_tfrecord_dir) as wr:
     for i in range(rows_count):
+        single_feature_dict = {}
+        single_feature_dict['user_id'] = get_ByteFeature(ctr_frame.loc[i, 'user_id'])
+        single_feature_dict['item_id'] = get_ByteFeature(ctr_frame.loc[i, 'item_id'])
+        single_feature_dict['label'] = get_IntFeature(ctr_frame.loc[i, 'click'])
+
         example = tf.train.Example(
-            features=tf.train.Features(
-                feature={
-                    'user_id':get_ByteFeature(ctr_frame.loc[i, 'user_id']),
-                    'item_id':get_ByteFeature(ctr_frame.loc[i, 'item_id']),
-                    'label': get_IntFeature(ctr_frame.loc[i, 'click'])
-                }
-            )
-               )
-        wr.write(record=example.SerializeToString())
+            features=tf.train.Features(feature=single_feature_dict))
+        print(single_feature_dict)
+        #wr.write(record=example.SerializeToString())
     wr.close()
-"""
+
 ### parse tfrecord
 
 def parse_tfrecord():
