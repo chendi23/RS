@@ -168,6 +168,7 @@ df_reader = DataReader(i_csv_path='C:\\Users\\dell\\PycharmProjects\\com.kgdata.
 df_reader.data_clean_retain_str()
 #df_reader.get_category()
 df_input = df_reader.get_df_input()
+df_input.to_csv('./processed_csv', sep=';')
 #df_reader.get_input()
 #print(df_reader.get_category())
 
