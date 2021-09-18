@@ -22,7 +22,7 @@ def model_fn(labels, features, mode, params):
             metric = tf.metrics.auc(score, label1, name='auc_metric')
 
         with tf.name_scope('loss'):
-            mse_loss = tf.reduce_mean(tf.losses.mean_squared_error(score, label1), name='mse loss')
+            mse_loss = tf.reduce_mean(tf.losses.mean_squared_error(score, label1), name='mse_loss')
 
     if mode == tf.estimator.ModeKeys.TRAIN:
         optimizer = tf.train.AdamOptimizer(learning_rate=params.lr)

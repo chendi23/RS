@@ -1,7 +1,8 @@
 import tensorflow as tf
+tf.enable_eager_execution()
 
-
-def parse_example(single_example):
+def parse_example(single_examplem,params):
+    ### expected_fatures_dict的维度由params提供
     expected_features_dict = {}
     expected_features = tf.train.Features(
         feature=expected_features_dict
@@ -9,6 +10,9 @@ def parse_example(single_example):
     parsed_single_example = tf.io.parse_single_example(serialized=single_example, features=expected_features)
 
     feature1 = parsed_single_example['feature1']
+    ### if features are stored in bytes
+    #feature1 = tf.io.decode_raw(feature1, out_type=tf.float32)
+
     feature2 = parsed_single_example['feature2']
     features_dict = {'feature1': feature1, 'feature2': feature2}
 
@@ -29,4 +33,5 @@ def input_fn(file_dir_list, params):
 
     iterator = data_set.make_one_shot_iterator()
     features_dict, labels_dict = iterator.get_next()
+
     return features_dict, labels_dict
