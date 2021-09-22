@@ -2,7 +2,7 @@ import sys
 import tensorflow as tf
 import data_loader
 import time
-
+from sklearn.metrics import roc_auc_score
 
 def model_early_stop(valid_metric_list, backstep_num):
     length = len(valid_metric_list)
@@ -53,11 +53,20 @@ def model_predict(trained_model_path, predict_file, params):
     """
         加载pb模型,预测tfrecord类型的数据
     """
-    with tf.Session(graph=tf.Graph()):
+    with tf.Session(graph=tf.Graph()) as sess:
         model = tf.saved_model.loader.load(trained_model_path)
         features_dict, labels_dict = data_loader.input_fn(predict_file, params)
-        ###TO DO!!!
+        while True:
+            feature1, feature2, label1 = sess.run(features_dict['feature1'], features_dict['feature2'], labels_dict['label1'])
+            feed_dict = {'feature1:0':feature1, 'feature2:0':feature2}
+            score_list = []
+            label_list = []
 
-
-    return
+            prediction = sess.run('score:0', feed_dict=feed_dict)
+            prediction_score = prediction[:, 0]
+            label = label1[:,0]
+            score_list.extend(prediction_score)
+            label_list.extend(label)
+            prediction_res = roc_auc_score(prediction, label1)
+            print(prediction_res(prediction_res))
 

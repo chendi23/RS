@@ -386,21 +386,24 @@ class MMOE():
                 ctr_pred.append([1])
             else:
                 ctr_pred.append([0])
+        #print(ctr_gt)
         hits = sum(ctr_pred == ctr_gt)
         wrong_index = [i for i in range(len(u_type)) if ctr_pred[i] != ctr_gt[i]]
         wrong_index = [i+46489+2 for i in wrong_index]
         print('wrong index: ', wrong_index)
         return loss, hits
 
-df_reader = data_reader.DataReader(i_csv_path='C:\\Users\\dell\\PycharmProjects\\com.kgdata.nlp.recommeders_new\\try\\demo_data\\items_hai.csv',
+df_reader = data_reader.DataReader(i_csv_path='C:\\Users\\dell\\PycharmProjects\\com.kgdata.nlp.recommeders_new\\try\\demo_data\\items.csv',
                                    u_csv_path='C:\\Users\\dell\\PycharmProjects\\com.kgdata.nlp.recommeders_new\\try\\demo_data\\users.csv',
                                    ctr_csv_path='C:\\Users\\dell\\PycharmProjects\\com.kgdata.nlp.recommeders_new\\try\\demo_data\\ctr.csv',
                                    ratings_csv_path='C:\\Users\\dell\\PycharmProjects\\com.kgdata.nlp.recommeders_new\\try\\demo_data\\ratings.csv')
 df_reader.data_clean()
 cate_num_dict = df_reader.get_category()
+print(cate_num_dict)
 
 
 u_type, u_sex, u_org, u_age, u_pos, u_seat, i_class, i_entities, label1, label2 = df_reader.get_input('C:\\Users\\dell\\PycharmProjects\\com.kgdata.nlp.recommeders_new\\try\\demo_data\\items_and_wv_np.npy')
+
 shuffle_train = np.random.choice(u_type.shape[0], u_type.shape[0], False)
 
 

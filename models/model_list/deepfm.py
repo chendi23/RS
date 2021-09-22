@@ -7,6 +7,7 @@ Reference:
 import os
 
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.metrics import roc_auc_score
@@ -14,7 +15,7 @@ from time import time
 from tensorflow.contrib.layers.python.layers import batch_norm as batch_norm
 from tensorflow.python.framework import graph_util
 from utils.yellowfin.yellowfin import YFOptimizer
-
+from utils.build_tfrecords_for_rs import FeatureDictionary, DataParser
 
 class DeepFM(BaseEstimator, TransformerMixin):
     def __init__(self, feature_size, field_size, model_dir,
@@ -355,12 +356,13 @@ class DeepFM(BaseEstimator, TransformerMixin):
                     self.saver.save(self.sess, self.inc_checkpoint_prefix)
                 else:
                     self.saver.save(self.sess, self.checkpoint_prefix)
-                    tf.summary.FileWriter('./logs', self.sess.graph)
+                    #tf.summary.FileWriter('./logs', self.sess.graph)
+                    """
                     with self.sess.graph.as_default():
                          tf.saved_model.simple_save(export_dir='./pb_models',session=self.sess, inputs={'X1': self.sess.graph.get_tensor_by_name('feat_index:0'), 'Xv': self.sess.graph.get_tensor_by_name('feat_value:0'),
                                                                                                         'dropout_keep_fm':self.sess.graph.get_tensor_by_name('dropout_keep_fm:0'),
                                                                                                         'dropout_keep_deep':self.sess.graph.get_tensor_by_name('dropout_keep_deep:0')},
-                                               outputs={'out': self.sess.graph.get_tensor_by_name('sigmoid_out:0')})
+                                               outputs={'out': self.sess.graph.get_tensor_by_name('sigmoid_out:0')})"""
 
         # fit a few more epoch on train+valid until result reaches the best_train_score
         if has_valid and refit:
@@ -465,10 +467,16 @@ def gen_test_data():
     return Xi, Xv, y
 
 
-deepfm = DeepFM(feature_size=200, field_size=20, model_dir='./models/', verbose=True)
-deepfm._init_graph()
-print(deepfm._initialize_weights())
-Xi, Xv, y = gen_test_data()
+df_input = pd.read_csv('D:\\zcd\\processed_csv.csv')
+df_input = df_input.drop(columns=['Unnamed: 0'])
+df_input = df_input[0:40000]
+fd_object = FeatureDictionary(df=df_input)
+ps = DataParser(fd_object)
+feature_dim, rows_count = ps.feature_dim, ps.rows_count
+Xi, Xv, labels = ps.parse(df_input)
+labels = np.asarray(labels).reshape([len(labels), 1])
+deepfm = DeepFM(feature_size=ps.feature_dim, field_size=ps.field_size, model_dir='./models/', verbose=True)
+#Xi, Xv, y = gen_test_data()
 
 #print(deepfm.evaluate(Xi,Xv,y))
-deepfm.fit(Xi_train=Xi,Xv_valid=Xv,Xi_valid=Xi,Xv_train=Xv,y_train=y,y_valid=y)
+deepfm.fit(Xi_train=Xi,Xv_valid=Xv,Xi_valid=Xi,Xv_train=Xv,y_train=labels,y_valid=labels)

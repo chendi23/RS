@@ -17,6 +17,7 @@ class FeatureDictionary:
         self.rows_count = self.df.shape[0]
         self.numeric_cols = numeric_cols
         self.ignore_cols = ignore_cols
+        self.field_size = 0
 
 
     def gen_feature_dictionary(self):
@@ -28,10 +29,12 @@ class FeatureDictionary:
             if col in self.numeric_cols:
                 feature_dict[col] = col_count
                 col_count += 1
+                self.field_size += 1
             else:
                 us = self.df[col].unique()
                 feature_dict[col] = dict(zip(us, range(col_count, col_count+len(us))))
                 col_count += len(us)
+                self.field_size += 1
         self.feature_dim = col_count
         print(feature_dict)
 
@@ -46,6 +49,7 @@ class DataParser:
         self.feature_dict_ob = feature_dict_ob
         self.feature_dict = self.feature_dict_ob.gen_feature_dictionary()
         self.feature_dim = self.feature_dict_ob.feature_dim
+        self.field_size = self.feature_dict_ob.field_size
         self.rows_count= self.feature_dict_ob.rows_count
 
     def parse(self, df=None):
@@ -153,11 +157,12 @@ def parse_tfrecords(tfrecords_path):
 
 
 '''test'''
-df_input = pd.read_csv
+df_input = pd.read_csv('D:\\zcd\\processed_csv.csv')
+df_input = df_input.drop(columns=['Unnamed: 0'])
 fd_object = FeatureDictionary(df=df_input)
 ps = DataParser(fd_object)
 feature_dim, rows_count = ps.feature_dim, ps.rows_count
 Xi, Xv, labels = ps.parse(df_input)
 
 lists_dict = {'Xi':Xi, 'Xv':Xv, 'labels': labels}
-list_to_tfrecords(lists_dict)
+#list_to_tfrecords(lists_dict)

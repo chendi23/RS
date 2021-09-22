@@ -14,7 +14,7 @@ class DataReader:
         self.item_df = pd.read_csv(i_csv_path, sep=';')
         self.ctr_df = pd.read_csv(ctr_csv_path, sep=';')
         self.ratings_df = pd.read_csv(ratings_csv_path, sep=';')
-        self.user_cate_columns = ['user_id', 'user_type', 'sex', 'org_id', 'seat_id', 'position_id', 'age']
+        self.user_cate_columns = ['user_type', 'sex', 'org_id', 'seat_id', 'position_id', 'age']
         self.item_cate_columns = ['i_class_label']
         self.bins = {'age': 10}
 
@@ -97,7 +97,7 @@ class DataReader:
         #print(click_filterd.columns)
         return click_filterd
 
-        return
+
 
     def get_input(self, wv_array='C:\\Users\\dell\\PycharmProjects\\com.kgdata.nlp.recommeders_new\\try\\demo_data\\items_and_wv_np.npy'):
         """
@@ -165,10 +165,12 @@ df_reader = DataReader(i_csv_path='C:\\Users\\dell\\PycharmProjects\\com.kgdata.
                                    ctr_csv_path='C:\\Users\\dell\\PycharmProjects\\com.kgdata.nlp.recommeders_new\\try\\demo_data\\ctr.csv',
                                    ratings_csv_path='C:\\Users\\dell\\PycharmProjects\\com.kgdata.nlp.recommeders_new\\try\\demo_data\\ratings.csv')
 
-df_reader.data_clean_retain_str()
 #df_reader.get_category()
-df_input = df_reader.get_df_input()
-df_input.to_csv('./processed_csv', sep=';')
+#df_reader.data_clean()
+#df_input = df_reader.get_df_input()
+
+
+#df_input.to_csv('D:\\zcd\\processed_csv.csv')
 #df_reader.get_input()
 #print(df_reader.get_category())
 
@@ -207,7 +209,7 @@ class FeatureDictionary:
 
         return feature_dict
 
-fd_object = FeatureDictionary(df=df_input)
+#fd_object = FeatureDictionary(df=df_input)
 
 
 class DataParser:
@@ -239,10 +241,10 @@ class DataParser:
         return Xi, Xv, labels
 
 
-ps = DataParser(fd_object)
-feature_dim, rows_count = ps.feature_dim, ps.rows_count
-Xi, Xv, labels = ps.parse(df_input)
-lists_dict = {'Xi':Xi, 'Xv':Xv, 'labels': labels}
+#ps = DataParser(fd_object)
+#feature_dim, rows_count = ps.feature_dim, ps.rows_count
+#Xi, Xv, labels = ps.parse(df_input)
+#lists_dict = {'Xi':Xi, 'Xv':Xv, 'labels': labels}
 
 
 
@@ -338,4 +340,4 @@ for example in dataset:
     parsed_feature_dict = tf.io.parse_single_example(example, features=expected_features)
     print(parsed_feature_dict)
 """
-parse_tfrecords('.//tf_record_from_lists//2021_09_17_19_12_56.tfrecords')
+#parse_tfrecords('.//tf_record_from_lists//2021_09_17_19_12_56.tfrecords')
