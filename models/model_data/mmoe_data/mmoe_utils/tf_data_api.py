@@ -36,11 +36,12 @@ if not os.path.exists(output_dir):
 
 filename = 'test.tfrecords'
 filename_full_path = os.path.join(output_dir, filename)
+"""
 with tf.io.TFRecordWriter(filename_full_path) as wr:
     for i in range(2):
         #print(serialized_example)
         wr.write(serialized_example)
-
+"""
 
 
 ### load TFRecord with the same feature protocol

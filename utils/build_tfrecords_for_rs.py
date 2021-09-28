@@ -4,7 +4,7 @@ from datetime import datetime
 import tensorflow as tf
 import pandas as pd
 from copy import deepcopy
-
+tf.enable_eager_execution()
 
 def pre_processing(path):
     return
@@ -36,7 +36,7 @@ class FeatureDictionary:
                 col_count += len(us)
                 self.field_size += 1
         self.feature_dim = col_count
-        print(feature_dict)
+        #print(feature_dict)
 
         return feature_dict
 
@@ -95,6 +95,14 @@ def get_Float_ListFeature(value):
         float_list = tf.train.BytesList(value=value)
         return tf.train.Feature(float_list)
 
+
+def get_Int_ListFeature(value):
+    value = np.asarray(value)
+    value= value.astype(np.int64).tostring()
+    value = [value]
+    int_list = tf.train.Int64List(value=value)
+    return tf.train.Feature(int_list)
+
 def get_LabelFeature(value):
     value = [value]
     float_list = tf.train.FloatList(value=value)
@@ -107,7 +115,7 @@ def list_to_tfrecords(lists_dict=None):
     output_dir = 'tf_record_from_lists'
     if not os.path.exists(os.path.join(output_dir)):
         os.mkdir(output_dir)
-    filename = datetime.now().strftime('%Y_%m_%d_%H_%M_%S' ) + '.tfrecords'
+    filename = datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '.tfrecords'
     with tf.io.TFRecordWriter(path=os.path.join(output_dir, filename)) as wr:
         for i in range(rows_count):
             single_row_dict = {}
@@ -150,19 +158,43 @@ def parse_example(example):
 def parse_tfrecords(tfrecords_path):
     with tf.Session() as sess:
         dataset = tf.data.TFRecordDataset([tfrecords_path])
-        dataset = dataset.map(parse_example)
+        dataset = dataset.map(lambda x:parse_example(x))
         print(tf.data.get_output_shapes(dataset))
 
     return
 
 
 '''test'''
+
+"""
 df_input = pd.read_csv('D:\\zcd\\processed_csv.csv')
 df_input = df_input.drop(columns=['Unnamed: 0'])
 fd_object = FeatureDictionary(df=df_input)
 ps = DataParser(fd_object)
-feature_dim, rows_count = ps.feature_dim, ps.rows_count
+feature_dim, rows_count, field_size = ps.feature_dim, ps.rows_count, ps.field_size
+print('feature_dim: ', feature_dim, 'row_count: ', rows_count, 'field_size: ', field_size)
 Xi, Xv, labels = ps.parse(df_input)
 
-lists_dict = {'Xi':Xi, 'Xv':Xv, 'labels': labels}
+lists_dict = {'Xi': Xi, 'Xv': Xv, 'labels': labels}
 #list_to_tfrecords(lists_dict)
+
+tf_records_path = 'D:\\zcd\\PycharmProjects\\com.kgdata.nlp.recommeders_new\\utils\\tf_record_from_lists'
+"""
+
+"""
+path = './tf_record_from_lists/2021_09_27_09_28_10.tfrecords'
+dataset = tf.data.TFRecordDataset([path])
+
+expected_features = {}
+expected_features['Xi'] = tf.io.FixedLenFeature(shape=[], dtype=tf.string)
+expected_features['Xv'] = tf.io.FixedLenFeature(shape=[], dtype=tf.string)
+expected_features['labels'] = tf.io.FixedLenFeature(shape=[], dtype=tf.string)
+
+dataset = dataset.map(parse_example)
+i = tf.compat.v1.data.make_one_shot_iterator(dataset)
+_, t = i.get_next()
+with tf.Session() as sess:
+    for j in range(10):
+        print(sess.run(t))
+"""
+
